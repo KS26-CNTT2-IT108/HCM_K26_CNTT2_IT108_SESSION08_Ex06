@@ -1,0 +1,38 @@
+SESSION08
+Bài 6 : Rà soát Script bảo trì hệ thống
+
+Tên lớp: HCM K26 CNTT2
+Môn học: Nhập môn công nghệ thông tin
+Họ và tên: LƯƠNG THANH THƯ
+
+
+Phần 1: Phân tích.
+Điểm cực kỳ nguy hiểm: Remove-Item -Path "C:\*" -Recurse -Force xóa toàn bộ ổ C:, trong khi mục đích chỉ là dọn log cũ.
+
+Ý nghĩa tham số:
++ -Path "C:\*": chọn mọi thứ ở gốc ổ C:.
++ -Recurse: xóa cả thư mục con, sâu đến tận cùng.
++ -Force: ép xóa cả tệp ẩn/hệ thống/chỉ-đọc, không hỏi lại.
+
+Hậu quả: mất hệ điều hành và dữ liệu, máy không khởi động được, khó khôi phục.
+3 Nguyên tắc “Vàng” thẩm định mã AI (đổi tên cho khớp bài học của bạn nếu khác): Đọc hiểu từng dòng trước khi chạy.Khoanh vùng đường dẫn (chỉ đúng thư mục dự án, đúng loại tệp).Thử an toàn (-WhatIf) rồi mới chạy thật.
+
+Phần 2: Triển khai 
+powershell
+
+$thu_muc_logs = "C:\TrangTraiLan\logs"
+
+# 1. Di chuyển đến thư mục logs
+Set-Location $thu_muc_logs
+
+# 2. Lọc dòng WARNING từ system.log ra issues.txt
+Select-String -Path "system.log" -Pattern "WARNING" > issues.txt
+
+# 3. Chỉ xóa tệp .tmp trong thư mục dự án (khoanh vùng đường dẫn)
+Remove-Item -Path "$thu_muc_logs\*.tmp"
+
+Phần 3: Kiểm thử 
+
++ Get-Content issues.txt: xem nội dung, chỉ có các dòng WARNING.
++ Get-ChildItem -Filter "*.tmp": liệt kê lại thư mục, không còn tệp .tmp.
++ Test-Path issues.txt: trả về True, xác nhận báo cáo đã được tạo.
